@@ -1,0 +1,258 @@
+---
+output:
+    pdf_document:
+        toc: true
+        includes:
+            in_header: "formatting-fixes.tex"
+    BiocStyle::html_document:
+        toc: true
+        toc_depth: 2
+package: TENET.ExperimentHub
+title: "Using the TENET.ExperimentHub datasets"
+author: Rhie Lab at the University of Southern California
+date: "`r Sys.Date()`"
+abstract: >
+    This vignette describes the basic usage of the TENET.ExperimentHub package,
+    which contains datasets for use in the TENET package's vignette and function
+    examples. These include a variety of different objects to illustrate
+    different datasets used in TENET functions. See our GitHub repository
+    (<https://github.com/rhielab/TENET.ExperimentHub>) for more information.
+    Where applicable, all datasets are aligned to the hg38 human genome.
+vignette: >
+    %\VignetteIndexEntry{Using the TENET.ExperimentHub datasets}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
+    \usepackage[utf8]{inputenc}
+---
+
+\RaggedRight
+
+```{r echo = FALSE, message = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+options(tibble.print_min = 4, tibble.print_max = 4, max.print = 4)
+```
+
+# Introduction
+
+The TENET.ExperimentHub package contains 6 datasets for use in the TENET
+package's examples and vignettes. These datasets include an example
+MultiAssayExperiment object with matched gene expression and DNA methylation
+data from a subset of both tumor (case) and adjacent normal (control) samples
+in The Cancer Genome Atlas (TCGA)'s breast adenocarcinoma (BRCA) cohort with
+essential information used in all TENET functions, an example GRanges object
+produced by the TENET `step1MakeExternalDatasets` function, a
+SummarizedExperiment object with example purity data to pass to the TENET
+`step2GetDifferentiallyMethylatedSites` function, a data frame with example
+patient clinical data (matching the data in the example MultiAssayExperiment
+object), and two additional GRanges objects containing example peak and
+topologically associating domain (TAD) data, respectively. Where applicable,
+all datasets are aligned to the hg38 human genome.
+
+# Acquiring and installing TENET.ExperimentHub
+
+R 4.4 or a newer version is required.
+
+On Ubuntu 22.04, installation was successful in a fresh R environment after
+adding the official R Ubuntu repository using the instructions at
+<https://cran.r-project.org/bin/linux/ubuntu/> and running the following command
+in a terminal:
+
+`sudo apt-get install r-base-core r-base-dev libcurl4-openssl-dev
+libfreetype6-dev libfribidi-dev libfontconfig1-dev libharfbuzz-dev libtiff5-dev
+libxml2-dev`
+
+No dependencies other than R are required on macOS or Windows.
+
+Two versions of this package are available.
+
+To install the stable version from Bioconductor, start R and run:
+
+```{r eval = FALSE}
+## Install BiocManager, which is required to install packages from Bioconductor
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+    install.packages("BiocManager")
+}
+
+BiocManager::install(version = "devel")
+BiocManager::install("TENET.ExperimentHub")
+```
+The development version containing the most recent updates is available from our
+GitHub repository (<https://github.com/rhielab/TENET.ExperimentHub>).
+
+To install the development version from GitHub, start R and run:
+
+```{r eval = FALSE}
+## Install prerequisite packages to install the development version from GitHub
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+    install.packages("BiocManager")
+}
+if (!requireNamespace("remotes", quietly = TRUE)) {
+    install.packages("remotes")
+}
+
+BiocManager::install(version = "devel")
+BiocManager::install("rhielab/TENET.ExperimentHub")
+```
+
+# Loading TENET.ExperimentHub
+
+To load the TENET.ExperimentHub package, start R and run:
+
+```{r message = FALSE}
+library(TENET.ExperimentHub)
+```
+
+# Using the included datasets
+
+Wrapper functions are provided to allow easy access to all included datasets.
+Usage of each wrapper function is demonstrated below.
+
+# Included datasets
+
+
+## `exampleTENETMultiAssayExperiment`
+
+A MultiAssayExperiment dataset created using a modified version
+of the `TCGADownloader` function from the TENET package utilizing
+TCGAbiolinks package functionality. This object contains two
+SummarizedExperiment objects, `expression` and `methylation`, with
+expression data for 11,637 genes annotated to the GENCODE v36 dataset,
+including all 1,637 identified human TF genes, and DNA methylation data for
+20,000 probes from the Illumina HM450 methylation array. The data are
+aligned to the human hg38 genome. Expression and methylation values were
+matched from 200 tumor and 42 adjacent normal tissue samples subset from the
+TCGA BRCA dataset. Additionally, results from running the TENET step 1-6
+functions on these samples are included in the metadata of this
+MultiAssayExperiment object. Clinical data for these samples are included in
+the colData of the MultiAssayExperiment object. (A separate data frame
+object containing a subset of the clinical data for these samples is
+available as `exampleTENETClinicalDataFrame`.) This dataset is included to
+demonstrate TENET functions. Note: Because this dataset is a small subset of
+the overall BRCA dataset, results generated by TENET from this dataset
+differ from those presented for the BRCA dataset at large in TENET
+publications.
+
+```{r}
+## Retrieve the ExperimentHub metadata for the object
+exampleTENETMultiAssayExperiment(metadata = TRUE)
+
+## Retrieve the object itself
+exampleTENETMultiAssayExperiment()
+```
+
+## `exampleTENETClinicalDataFrame`
+
+A data frame containing example and simulated clinical
+information corresponding to the samples in the
+`exampleTENETMultiAssayExperiment` object, used to demonstrate how TENET
+functions can import clinical data from a specified data frame. Clinical
+data are utilized by the `step2GetDifferentiallyMethylatedSites`,
+`step7TopGenesSurvival`, and `step7ExpressionVsDNAMethylationScatterplots`
+functions. The data frame consists of vital status and time variables for
+use by the `step7TopGenesSurvival` function, simulated purity data for each
+sample, and simulated copy number variation (CNV) and somatic mutation (SM)
+data for the top 10 genes by number of linked hypermethylated and
+hypomethylated probes derived from analyses done using the
+`exampleTENETMultiAssayExperiment` object. These data are a subset of the
+clinical data contained in the colData of the
+`exampleTENETMultiAssayExperiment` object.
+
+```{r}
+## Retrieve the ExperimentHub metadata for the object
+exampleTENETClinicalDataFrame(metadata = TRUE)
+
+## Retrieve the object itself
+exampleTENETClinicalDataFrame()
+```
+
+## `exampleTENETStep1MakeExternalDatasetsGRanges`
+
+A GenomicRanges dataset representing putative enhancer regions
+relevant to BRCA, created using the `step1MakeExternalDatasets` function in
+the TENET package with the `consensusEnhancer`, `consensusNDR`,
+`publicEnhancer`, `publicNDR`, and `ENCODEdELS` arguments all set to TRUE,
+and the `cancerType` argument set to "BRCA". The data are aligned to the
+human hg38 genome. This dataset is included to demonstrate TENET's
+`step2GetDifferentiallyMethylatedSites` function.
+
+```{r}
+## Retrieve the ExperimentHub metadata for the object
+exampleTENETStep1MakeExternalDatasetsGRanges(metadata = TRUE)
+
+## Retrieve the object itself
+exampleTENETStep1MakeExternalDatasetsGRanges()
+```
+
+## `exampleTENETStep2GetDifferentiallyMethylatedSitesPuritySummarizedExperiment`
+SummarizedExperiment object
+
+A SummarizedExperiment object with three DNA methylation
+datasets each composed of 10 adjacent normal colorectal adenocarcinoma
+(COAD) samples from The Cancer Genome Atlas (TCGA), retrieved using the
+TCGAbiolinks package. Each dataset has data for 20,000 probes from the
+Illumina HM450 methylation array, to match the number of probes in the
+`exampleTENETMultiAssayExperiment` object. The data are aligned to the human
+hg38 genome. This object is representative of a `purity` dataset, which
+would contain DNA methylation data from potentially confounding sources,
+used with TENET's `step2GetDifferentiallyMethylatedSites` function.
+
+```{r}
+## Retrieve the ExperimentHub metadata for the object
+exampleTENETStep2GetDifferentiallyMethylatedSitesPuritySummarizedExperiment(
+    metadata = TRUE
+)
+
+## Retrieve the object itself
+exampleTENETStep2GetDifferentiallyMethylatedSitesPuritySummarizedExperiment()
+```
+
+## `exampleTENETPeakRegions`
+
+A GenomicRanges dataset with example genomic regions (peaks) of
+interest, used to demonstrate TENET's `step7TopGenesUserPeakOverlap`
+function. The peaks are derived from a ChIP-seq experiment on FOXA1 in MCF-7
+cells and aligned to the human hg38 genome. They were downloaded from the
+ENCODE portal (file ENCFF112JVK in experiment ENCSR126YEB). **Citation:** ENCODE
+Project Consortium; Moore JE, Purcaro MJ, Pratt HE, et al. Expanded
+encyclopaedias of DNA elements in the human and mouse genomes. Nature. 2020
+Jul;583(7818):699-710. doi: 10.1038/s41586-020-2493-4. Epub 2020 Jul 29.
+Erratum in: Nature. 2022 May;605(7909):E3. PMID: 32728249; PMCID: PMC7410828.
+
+```{r}
+## Retrieve the ExperimentHub metadata for the object
+exampleTENETPeakRegions(metadata = TRUE)
+
+## Retrieve the object itself
+exampleTENETPeakRegions()
+```
+
+## `exampleTENETTADRegions`
+
+A GenomicRanges dataset with example topologically associating
+domains (TADs), used to demonstrate TENET's `step7TopGenesTADTables`
+function. The TADs are derived from T47D cells (mistakenly labeled as
+'T470'), and aligned to the human hg38 genome. They were downloaded from the
+3D Genome Browser at <http://3dgenome.fsm.northwestern.edu>. **Citation:** Wang
+Y, Song F, Zhang B, et al. The 3D Genome Browser: a web-based browser for
+visualizing 3D genome organization and long-range chromatin interactions.
+Genome Biol. 2018 Oct 4;19(1):151. doi: 10.1186/s13059-018-1519-9. PMID:
+30286773; PMCID: PMC6172833.
+
+```{r}
+## Retrieve the ExperimentHub metadata for the object
+exampleTENETTADRegions(metadata = TRUE)
+
+## Retrieve the object itself
+exampleTENETTADRegions()
+```
+
+# Session info
+
+```{r echo = FALSE, message = FALSE}
+## Reset max.print to the default to ensure the full session info is shown
+options(max.print = 99999)
+```
+
+```{r}
+sessionInfo()
+```
